@@ -50,8 +50,10 @@
   
   body {
     margin: 0;
-    background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
+    background-image: url("https://constructionexec.com/assets/site_18/images/article/Dollarphotoclub_66178341_small.jpg?width=800");
     background-color: #cccccc;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
   
   h1 {
