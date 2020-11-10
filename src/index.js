@@ -22,7 +22,7 @@ const renderOneProject = (project) => {
     const time = ce('p')
     importance.innerText = `Importance: ${project.importance}`
     time.innerText = `Time needed: ${project.time}`
-    
+
 
     projectDiv.append(title, importance, time) 
 
