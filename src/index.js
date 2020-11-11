@@ -2,9 +2,9 @@ let addProject = false;
 const projectURL = "http://localhost:3000/projects"
 const mainContainer = document.querySelector('#main-container')
 const projectFormContainer = document.querySelector(".projectContainer")
-const addBtn = document.querySelector("#new-project-btn")
-const addBtn2 = document.querySelector(".add-task-id")
-
+const addProjectBtn = document.querySelector("#new-project-btn")
+const addTaskBtn = document.querySelector(".add-task-id")
+const newProjectForm = document.querySelector('.add-project-form')
 const ce = (element) => {
     return document.createElement(element)
 }
@@ -96,15 +96,13 @@ const renderOneProject = (project) => {
 
     projectDiv.append(title, importance, time, taskTitle,formAddTask) 
 
-
-    project.tasks.forEach(task => {
+    if(project.task){
+        project.tasks.forEach(task => {
             const newTask = addTask(task)
             projectDiv.append(newTask)
         })
-        // debugger
+    }
 
-    
-    
     mainContainer.append(projectDiv)
 }
 
@@ -147,9 +145,44 @@ const renderProjects = (projects) => {
     })
 }
 
+const handleNewProject = (event) =>{
+    event.preventDefault()
+
+    const name = event.target[0].value
+    const time = parseInt(event.target[1].value)
+    const importance = parseInt(event.target[2].value)
+
+    event.target.reset()
+
+    fetch(projectURL, {
+        method: "POST", 
+        headers: {
+            'Content-Type' : 'application/json', 
+            'Accept' : 'application/json'
+        }, 
+        body: JSON.stringify({
+            name: name, 
+            time: time, 
+            importance: importance,
+            tasks : {}
+        })
+    })
+    .then(resp => resp.json())
+    .then(newProject => {
+        renderOneProject(newProject)
+    })   
+}
+
+
+// CALLS // 
+
 fetchProject()
 
-addBtn.addEventListener("click", () => {
+// EVENT LISTENERS //
+
+addProjectBtn.addEventListener("click", () => {
     addProject = !addProject;
     addProject ? projectFormContainer.style.display = "block" : projectFormContainer.style.display = "none";
   });
+
+newProjectForm.addEventListener('submit', handleNewProject)
