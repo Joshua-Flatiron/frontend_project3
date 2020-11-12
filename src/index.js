@@ -1,5 +1,6 @@
 let addProject = false;
 let editProject = false;
+let editTask = false
 const projectURL = "http://localhost:3000/projects"
 const taskURL = "http://localhost:3000/tasks"
 const mainContainer = document.querySelector('#main-container')
@@ -44,7 +45,7 @@ const renderOneProject = (project) => {
         
             const editProjectForm = ce('FORM')
                     editProjectForm.setAttribute('class', 'edit-project' )
-                    editProjectForm.name = 'taskForm'
+                    editProjectForm.name = 'projectForm'
         
             editProject = !editProject
             editProject ? editProjectForm.style.display = "block" : editProjectForm.style.display = "none";
@@ -214,10 +215,16 @@ const addTask = (task) => {
 
             editBtn = ce("button")
             editBtn.className = "task-edit"
-            editBtn.setAttribute("edit-task-id", task.id)
+            editBtn.setAttribute("id", task.id)
             editBtn.innerText = "Edit Task"
 
-        
+            editBtn.addEventListener('click', (event) => {
+                debugger
+                let taskName = event.target.parentElement.children[0].innerText
+                let taskTime = parseINT(event.target.parentElement.children[1].innerText.split(' ')[2])
+            })
+
+    
             taskDiv.setAttribute('id', task.id)
             const tTitle = ce('h2')
             tTitle.innerHTML += `${task.name}  `
@@ -225,9 +232,8 @@ const addTask = (task) => {
             // tTitle.append(delBtn)
             const tTime = ce('p')
             tTime.innerText = `Time needed: ${task.time} mins`
-            tTitle.append(editBtn,delBtn)
 
-            taskDiv.append(tTitle, tTime)
+            taskDiv.append(tTitle, tTime, editBtn,delBtn)
 
             
             return taskDiv
