@@ -1,4 +1,5 @@
 let addProject = false;
+let editProject = false;
 const projectURL = "http://localhost:3000/projects"
 const taskURL = "http://localhost:3000/tasks"
 const mainContainer = document.querySelector('#main-container')
@@ -18,20 +19,6 @@ const fetchProject = () => {
     // debugger
 }
 
-const handleEdit = (event) => {
-
-    console.log(event)
-    addProject = !addProject
-    addProject ? projectFormContainer.style.display = "block" : projectFormContainer.style.display = "none";
-    debugger
-
-    const name = event.target.parentElement.firstElementChild.innerText
-    const importance = parseInt(event.target.parentElement.children[1].innerText.split(' ')[1]) 
-    const time = parseInt(event.target.parentElement.children[2].innerText.split(' ')[2])
-
-    
-}
-
 
 const renderOneProject = (project) => {
     const projectDiv = ce('div')
@@ -46,10 +33,86 @@ const renderOneProject = (project) => {
 
     editBtn = ce("button")
     editBtn.className = "project-edit"
-    editBtn.setAttribute("edit-project-id", project.id)
+    editBtn.setAttribute("id", project.id)
     editBtn.innerText = "Edit Project"
 
+        const handleEdit = (event) => {
+            const name = event.target.parentElement.firstElementChild.innerText
+            const importance = parseInt(event.target.parentElement.children[1].innerText.split(' ')[1]) 
+            const time = parseInt(event.target.parentElement.children[2].innerText.split(' ')[2])
+            const editProjectId = event.target.id
+        
+            const editProjectForm = ce('FORM')
+                    editProjectForm.setAttribute('class', 'edit-project' )
+                    editProjectForm.name = 'taskForm'
+        
+            editProject = !editProject
+            editProject ? editProjectForm.style.display = "block" : editProjectForm.style.display = "none";
+            
+           
+            
+                
+                const nameInput = ce('INPUT')
+                    nameInput.type="TEXT";
+                    nameInput.name="name"
+                    nameInput.value= name
+                    nameInput.placeholder="Insert Task Name"
+                    
+                const timeInput = ce('INPUT')
+                    timeInput.type="INTEGER";
+                    timeInput.name="time"
+                    timeInput.value= time
+                    timeInput.placeholder="Time required(in mins)"
+
+                const importanceInput = ce('INPUT')
+                    importanceInput.type="INTEGER";
+                    importanceInput.name="time"
+                    importanceInput.value= importance
+                    importanceInput.placeholder="Time required(in mins)"
+                
+                const projectId = ce('INPUT')
+                    projectId.type="HIDDEN"
+                    projectId.name="ProjectId"
+                    projectId.value=`${editProjectId}`
+                
+                const submit = ce('INPUT')
+                    submit.type="submit"
+                    submit.name="submit"
+                    submit.value="Update Project"
+                    submit.class="submit"
+            
+                editProjectForm.append(nameInput, importanceInput, timeInput,  projectId, submit)
+                projectDiv.prepend(editProjectForm)
+
+                editProjectForm.addEventListener('submit', event =>{
+                    editProject = false
+                    event.preventDefault()
+                    console.log('clicked')
+                    let name = event.target[0].value
+                    let importance = event.target[1].value
+                    let time = event.target[2].value
+                    let thisId = parseInt(event.target['ProjectId'].value)
+
+                    fetch(projectURL + '/' + `${thisId}`, {
+                        method: "PATCH", 
+                        headers: {
+                            'Content-Type' : 'application/json',
+                            'Accept' : 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name : name, 
+                            importance: importance,
+                            time: time
+                        })
+                    })
+                    .then(resp => resp.json())
+                    .then(fetchProject)
+                })
+        }
+
     editBtn.addEventListener('click', handleEdit)
+        
+
 
     delBtn.addEventListener("click", () => {
         fetch(projectURL+"/"+project.id, {
@@ -61,7 +124,7 @@ const renderOneProject = (project) => {
     })
 
     title.innerHTML += `${project.name} `
-    // <button class= "edit-btn" id = "${project.id}">Edit</button> <button class= "delete-btn" id = "${project.id}">Delete</button> `
+ 
     
     const importance = ce('p')
     const time = ce('p')
@@ -101,65 +164,64 @@ const renderOneProject = (project) => {
             submit.value="Create Task"
             submit.class="submit"
     
-    addTaskForm.append(nameInput, timeInput, projectId, submit)
-    
-        const handleNewTask = (event) => {
-            event.preventDefault()
-            let name = event.target[0].value
-            let time = parseInt(event.target[1].value)
-            let projectID = parseInt(event.target['ProjectId'].value)
-            event.target.reset()
+addTaskForm.append(nameInput, timeInput, projectId, submit)
+
+    const handleNewTask = (event) => {
+        event.preventDefault()
+        let name = event.target[0].value
+        let time = parseInt(event.target[1].value)
+        let projectID = parseInt(event.target['ProjectId'].value)
+        event.target.reset()
 
 
 
-            fetch(taskURL, {
-                method: "POST", 
-                headers: {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                }, 
-                body: JSON.stringify({
-                    name : name, 
-                    time : time, 
-                    project_id : projectID
-                })
+        fetch(taskURL, {
+            method: "POST", 
+            headers: {
+                "Content-Type" : "application/json",
+                "Accept" : "application/json"
+            }, 
+            body: JSON.stringify({
+                name : name, 
+                time : time, 
+                project_id : projectID
             })
-            .then(resp => resp.json())
-            .then(console.log
-            )
-        } 
+        })
+        .then(resp => resp.json())
+        .then(fetchProject)
+    } 
     
-    addTaskForm.addEventListener('submit', handleNewTask)   
-    const addTask = (task) => {
+addTaskForm.addEventListener('submit', handleNewTask)   
+const addTask = (task) => {
 
-        const taskDiv = ce('div')
-    
-                
-                delBtn = ce("button")
-                delBtn.className = "release"
-                delBtn.setAttribute("data-task-id", task.id)
-                delBtn.innerText = "X"
-    
-                editBtn = ce("button")
-                editBtn.className = "task-edit"
-                editBtn.setAttribute("edit-task-id", task.id)
-                editBtn.innerText = "E"
-    
-           
-                taskDiv.setAttribute('id', task.id)
-                const tTitle = ce('h2')
-                tTitle.innerHTML += `${task.name}  `
-                //  <button class= "edit-btn" id = "${task.id}">Edit</button> <button class= "delete-btn" id = "${task.id}">Delete</button> `
-                // tTitle.append(delBtn)
-                const tTime = ce('p')
-                tTime.innerText = `Time needed: ${task.time} mins`
-                tTitle.append("  ",delBtn," ",editBtn)
-    
-                taskDiv.append(tTitle, tTime)
-    
-                
-                return taskDiv
-    }
+    const taskDiv = ce('div')
+
+            
+            delBtn = ce("button")
+            delBtn.className = "release"
+            delBtn.setAttribute("data-task-id", task.id)
+            delBtn.innerText = "Delete Task"
+
+            editBtn = ce("button")
+            editBtn.className = "task-edit"
+            editBtn.setAttribute("edit-task-id", task.id)
+            editBtn.innerText = "Edit Task"
+
+        
+            taskDiv.setAttribute('id', task.id)
+            const tTitle = ce('h2')
+            tTitle.innerHTML += `${task.name}  `
+            //  <button class= "edit-btn" id = "${task.id}">Edit</button> <button class= "delete-btn" id = "${task.id}">Delete</button> `
+            // tTitle.append(delBtn)
+            const tTime = ce('p')
+            tTime.innerText = `Time needed: ${task.time} mins`
+            tTitle.append(editBtn,delBtn)
+
+            taskDiv.append(tTitle, tTime)
+
+            
+            return taskDiv
+}
 
     projectDiv.append(title, importance, time,  editBtn, delBtn, taskTitle)
 
@@ -208,9 +270,8 @@ const handleNewProject = (event) =>{
         })
     })
     .then(resp => resp.json())
-    .then(newProject => {
-        mainContainer.append(renderOneProject(newProject))
-    })   
+    .then(fetchProject
+    )   
 }
 
 
