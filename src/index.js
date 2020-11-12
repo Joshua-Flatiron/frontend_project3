@@ -202,6 +202,16 @@ const addTask = (task) => {
             delBtn.setAttribute("data-task-id", task.id)
             delBtn.innerText = "Delete Task"
 
+            delBtn.addEventListener('click', (event) => {
+            
+                    fetch(taskURL+"/"+task.id, {
+                        method: "DELETE"
+                    })
+                    .then(resp => resp.json())
+                    .then(delTask => taskDiv.remove()
+                )
+            })
+
             editBtn = ce("button")
             editBtn.className = "task-edit"
             editBtn.setAttribute("edit-task-id", task.id)
