@@ -88,7 +88,7 @@ const renderOneProject = (project) => {
                 editProjectForm.addEventListener('submit', event =>{
                     editProject = false
                     event.preventDefault()
-                    console.log('clicked')
+            
                     let name = event.target[0].value
                     let importance = event.target[1].value
                     let time = event.target[2].value
@@ -219,10 +219,69 @@ const addTask = (task) => {
             editBtn.innerText = "Edit Task"
 
             editBtn.addEventListener('click', (event) => {
-                debugger
+    
                 let taskName = event.target.parentElement.children[0].innerText
-                let taskTime = parseINT(event.target.parentElement.children[1].innerText.split(' ')[2])
+                let taskTime = parseInt(event.target.parentElement.children[1].innerText.split(' ')[2])
+                let editTaskId = parseInt(event.target.id)
+
+                const editTaskForm = ce('FORM')
+                    editTaskForm.setAttribute('class', 'edit-task' )
+                    editTaskForm.name = 'taskForm'
+        
+            editTask = !editTask
+            editTask ? editTaskForm.style.display = "block" : editTaskForm.style.display = "none";
+            
+                const nameInput = ce('INPUT')
+                    nameInput.type="TEXT";
+                    nameInput.name="name"
+                    nameInput.value= taskName
+                    nameInput.placeholder="Insert Task Name"
+                    
+                const timeInput = ce('INPUT')
+                    timeInput.type="INTEGER";
+                    timeInput.name="time"
+                    timeInput.value= taskTime
+                    timeInput.placeholder="Time required(in mins)"
+                
+                const taskId = ce('INPUT')
+                    taskId.type="HIDDEN"
+                    taskId.name="taskId"
+                    taskId.value=`${editTaskId}`
+                
+                const submit = ce('INPUT')
+                    submit.type="submit"
+                    submit.name="submit"
+                    submit.value="Update Task"
+                    submit.class="submit"
+            
+                editTaskForm.append(nameInput, timeInput,  taskId, submit)
+                taskDiv.prepend(editTaskForm)
+
+                editTaskForm.addEventListener('submit', event =>{
+                editTask = false
+                event.preventDefault()
+        
+                let name = event.target[0].value
+                let time = event.target[1].value
+                let thisId = parseInt(event.target['taskId'].value)
+
+                fetch(taskURL + '/' + `${thisId}`, {
+                    method: "PATCH", 
+                    headers: {
+                        'Content-Type' : 'application/json',
+                        'Accept' : 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name : name, 
+                        time: time
+                    })
+                })
+                .then(resp => resp.json())
+                .then(fetchProject)
+                 })
             })
+
+            
 
     
             taskDiv.setAttribute('id', task.id)
